@@ -2,6 +2,11 @@ name: Build TA-Lib wheels for Windows
 
 on:
   workflow_dispatch:
+    inputs:
+      talib_py_version:
+        description: "TA-Lib Python version"
+        required: true
+        default: "0.5.4"
   push:
     branches:
       - builds_*
@@ -9,7 +14,7 @@ on:
 
 env:
   TALIB_C_VER: 0.4.0
-  TALIB_PY_VER: 0.5.4
+  TALIB_PY_VER: ${{ github.event.inputs.talib_py_version || '0.5.4' }}
   PIP_NO_VERIFY: 0
   PIP_VERBOSE: 1
   # CIBW_ENVIRONMENT: "PIP_PRE=1"
@@ -49,6 +54,7 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
           name: wheels-win-amd64
+
   build_x86:
     name: Build x86 wheels
     runs-on: ${{ matrix.os }}
@@ -99,3 +105,48 @@ jobs:
   #      with:
   #        path: ./wheelhouse/*.whl
   #        name: wheels-win-arm64
+
+
+  build_arm:
+    name: "🏗 Build armHF wheels via Docker"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+        platform: ["linux/arm/v7"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Available platforms
+      run: echo ${{ steps.buildx.outputs.platforms }}
+
+    - name: Build TA-Lib wheels
+      run: |
+        docker buildx build -f Dockerfile \
+          --platform ${{ matrix.platform }} \
+          --build-arg RUN_TESTS=0 \
+          --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+          --load \
+          -t talib:wheel .
+
+    - name: Extract Wheels from image
+      run: |
+        docker run --rm -v $(pwd)/assets:/assets \
+          --platform ${{ matrix.platform }} \
+          talib:wheel \
+          cp -r /opt/ta-lib-python/wheels/ /assets/
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ta-lib_release-armv7-${{ matrix.python-version }}
+        path: ./assets/wheels/*.whl
