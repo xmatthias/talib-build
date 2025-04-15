@@ -9,7 +9,7 @@
 
 ARG PYTHON_VERSION="3.7"
 
-FROM python:$PYTHON_VERSION as builder
+FROM python:$PYTHON_VERSION AS builder
 
 ARG TARGETPLATFORM
 ARG TALIB_PY_VER="0.5.4"
@@ -40,7 +40,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
         && echo "[global]\nextra-index-url=https://www.piwheels.org/simple" > /etc/pip.conf; \
     fi \
     # download python ta-lib
-    curl -L -o talib-python.zip "https://github.com/TA-Lib/ta-lib-python/archive/refs/tags/TA_Lib-${TALIB_PY_VER}.zip" \
+    && curl -L -o talib-python.zip "https://github.com/TA-Lib/ta-lib-python/archive/refs/tags/TA_Lib-${TALIB_PY_VER}.zip" \
     && unzip talib-python.zip \
     && rm talib-python.zip \
     && cd ta-lib-python-TA_Lib-${TALIB_PY_VER} \
