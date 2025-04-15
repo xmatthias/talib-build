@@ -47,7 +47,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
     && python -m pip install "numpy" build \
     && python -m pip install -e . \
     && python -c 'import numpy, talib; close = numpy.random.random(100); output = talib.SMA(close); print(output)' \
-    && python -m pip wheel --wheel-dir wheels . "numpy"
+    && python -m pip wheel --wheel-dir ../wheels . "numpy"
 
 ARG RUN_TESTS="1"
 RUN if [ "$RUN_TESTS" -ne "0" ]; then \
