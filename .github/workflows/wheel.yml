@@ -2,10 +2,14 @@ name: Build TA-Lib wheels for Windows
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - builds_*
+
 
 env:
   TALIB_C_VER: 0.4.0
-  TALIB_PY_VER: 0.5.1
+  TALIB_PY_VER: 0.5.4
   PIP_NO_VERIFY: 0
   PIP_VERBOSE: 1
   # CIBW_ENVIRONMENT: "PIP_PRE=1"
@@ -15,7 +19,7 @@ env:
   CIBW_TEST_COMMAND: >
     cd .. &&
     pytest --rootdir=C: -k "not RSI and not threading" {project}/tests
-  CIBW_TEST_SKIP: "*win32 cp313*"
+  CIBW_TEST_SKIP: "*win32*"
   CIBW_SKIP: "pp* cp36*"
   MSBUILDTREATHIGHERTOOLSVERSIONASCURRENT: 1
 
