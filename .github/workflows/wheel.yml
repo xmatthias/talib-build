@@ -6,7 +6,7 @@ on:
       talib_py_version:
         description: "TA-Lib Python version"
         required: true
-        default: "0.5.4"
+        default: "0.5.5"
   push:
     branches:
       - builds_*
@@ -14,7 +14,7 @@ on:
 
 env:
   TALIB_C_VER: 0.4.0
-  TALIB_PY_VER: ${{ github.event.inputs.talib_py_version || '0.5.4' }}
+  TALIB_PY_VER: ${{ github.event.inputs.talib_py_version || '0.5.5' }}
   PIP_NO_VERIFY: 0
   PIP_VERBOSE: 1
   # CIBW_ENVIRONMENT: "PIP_PRE=1"
@@ -135,6 +135,7 @@ jobs:
           --platform ${{ matrix.platform }} \
           --build-arg RUN_TESTS=0 \
           --build-arg PYTHON_VERSION=${{ matrix.python-version }} \
+          --build-arg TALIB_PY_VER=${TALIB_PY_VER} \
           --load \
           -t talib:wheel .
 
